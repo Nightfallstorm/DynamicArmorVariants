@@ -13,14 +13,15 @@ void Hooks::Install()
 
 void Hooks::InitWornArmor(
 	RE::TESObjectARMO* a_armor,
-	RE::Actor* a_actor,
-	RE::BSTSmartPointer<RE::BipedAnim>* a_biped)
+	RE::TESRace* a_race,
+	RE::BSTSmartPointer<RE::BipedAnim>* a_biped,
+	[[maybe_unused]] bool isFemale)
 {
-	auto race = a_actor->GetRace();
-	auto sex = a_actor->GetActorBase()->GetSex();
+	auto actor = a_biped->get()->actorRef.get().get()->As<RE::Actor>();
+	auto sex = actor->GetActorBase()->GetSex();
 
 	for (auto& armorAddon : a_armor->armorAddons) {
-		if (Ext::TESObjectARMA::HasRace(armorAddon, race)) {
+		if (Ext::TESObjectARMA::HasRace(armorAddon, a_race)) {
 
 			auto visitor = std::bind(
 				Ext::TESObjectARMA::InitWornArmorAddon,
@@ -29,7 +30,7 @@ void Hooks::InitWornArmor(
 				a_biped,
 				sex);
 
-			DynamicArmorManager::GetSingleton()->VisitArmorAddons(a_actor, armorAddon, visitor);
+			DynamicArmorManager::GetSingleton()->VisitArmorAddons(actor, armorAddon, visitor);
 		}
 	}
 }

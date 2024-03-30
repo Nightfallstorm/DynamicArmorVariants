@@ -3,29 +3,13 @@
 
 void Patches::WriteInitWornPatch(InitWornArmorFunc* a_func)
 {
-	auto hook = util::MakeHook(RE::Offset::TESNPC::InitWornForm, 0x2F0);
+	auto hook = util::MakeHook(RE::Offset::TESNPC::InitWornForm, 0x302);
 
-	// Expected size: 0x12
-	struct Patch : public Xbyak::CodeGenerator
-	{
-		Patch(std::uintptr_t a_funcAddr)
-		{
-			mov(rdx, r13);
-			mov(rcx, rbp);
-			mov(rax, a_funcAddr);
-			call(rax);
-		}
-	};
+	auto& trampoline = SKSE::GetTrampoline();
+	SKSE::AllocTrampoline(14);
 
-	Patch patch{ reinterpret_cast<std::uintptr_t>(a_func) };
-	patch.ready();
+	trampoline.write_call<5>(hook.address(), reinterpret_cast<std::uintptr_t>(a_func));
 
-	if (patch.getSize() > 0x17) {
-		util::report_and_fail("Patch was too large, failed to install"sv);
-	}
-
-	REL::safe_fill(hook.address(), REL::NOP, 0x17);
-	REL::safe_write(hook.address(), patch.getCode(), patch.getSize());
 }
 
 void Patches::WriteGetWornMaskPatch(GetWornMaskFunc* a_func)

@@ -4,8 +4,9 @@ namespace Patches
 {
 	using InitWornArmorFunc = void(
 		RE::TESObjectARMO* a_armor,
-		RE::Actor* a_actor,
-		RE::BSTSmartPointer<RE::BipedAnim>* a_biped);
+		RE::TESRace* a_race,
+		RE::BSTSmartPointer<RE::BipedAnim>* a_biped,
+		bool isFemale);
 
 	void WriteInitWornPatch(InitWornArmorFunc* a_func);
 
